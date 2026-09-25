@@ -15,3 +15,9 @@ import LCHSWiener.CauchyFourier
 import LCHSWiener.KernelUpperBound
 import LCHSWiener.Target
 import LCHSWiener.Theorem1
+import LCHSWiener.MatrixTarget
+import LCHSWiener.HalfPlanePoisson
+import LCHSWiener.OperatorLCHS
+import LCHSWiener.MatrixLCHS
+import LCHSWiener.MatrixLowerBound
+import LCHSWiener.MatrixTheorem1

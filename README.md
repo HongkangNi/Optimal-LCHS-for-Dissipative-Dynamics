@@ -67,6 +67,29 @@ removed.
 
 so a local build gives an immediate dependency audit.
 
+## Matrix version (in progress)
+
+`LCHSWiener/MatrixTarget.lean` states the matrix-model version of Theorem 1
+(eq. (3.3) of the note) as `MatrixTheorem1Statement`, and the realization
+lemma of Section 4 as `RealizationLemma`. Both are stated for `d × d` complex
+matrices of every dimension `d`, with the operator norm.
+
+- `HalfPlanePoisson.lean`: Poisson formula at `-i` for bounded holomorphic
+  functions on the lower half-plane (vector-valued).
+- `OperatorLCHS.lean`: `‖e^{-i(zX+Y)}‖ ≤ 1` for `Im z ≤ 0`, analyticity in `z`,
+  and operator-valued integrals against complex measures.
+- `MatrixLCHS.lean`: the matrix LCHS identities
+  `∫ w(k) e^{-i(kX+Y)} dk = e^{-(X+iY)}` for the Cauchy kernel and the outer
+  kernel, and the upper-bound witnesses for both branches.
+- `MatrixLowerBound.lean`: the dual inequality (3.7) and the sharp lower bound,
+  assuming `RealizationLemma`.
+- `MatrixTheorem1.lean`: `MatrixTheorem1_of_realization :
+  RealizationLemma → MatrixTheorem1Statement`.
+
+The upper bound is proved unconditionally. The realization lemma itself
+(Sections 4.1–4.3, following `section4_finite_dimensional.tex`) is not yet
+formalized.
+
 ## Verification status
 
 The project compiles with Lean 4.34.0 / Mathlib v4.34.0, and
