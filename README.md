@@ -69,7 +69,7 @@ so a local build gives an immediate dependency audit.
 
 ## Verification status
 
-The project compiles with Lean 4.34.0 / Mathlib v4.34.0 (`lake build`), and
+The project compiles with Lean 4.34.0 / Mathlib v4.34.0, and
 
 ```
 'LCHSWiener.wiener_theorem1' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -78,13 +78,50 @@ The project compiles with Lean 4.34.0 / Mathlib v4.34.0 (`lake build`), and
 i.e. only the standard Lean axioms are used; there is no `sorry`, `admit` or
 project-local axiom.
 
-The top-level `Mathlib.olean` is missing from the v4.34.0 cache, so no file may
-`import Mathlib`; use specific module imports instead.
+## How to check the proof
 
-In this Codespace `/workspaces` is a slow loop device, so build from a copy on
-local disk:
+These steps work on Windows, macOS and Linux.
+
+1. Install [elan](https://lean-lang.org/install/), the Lean version manager.
+   The Lean 4 VS Code extension can also install it for you.
+2. Build:
+
+   ```bash
+   git clone <repository-url>
+   cd lchs-wiener-full
+   lake exe cache get   # download prebuilt Mathlib (a few minutes)
+   lake build           # check this project (about a minute)
+   ```
+
+   `lean-toolchain` pins Lean 4.34.0 and `lake-manifest.json` pins the exact
+   Mathlib revision, so do not run `lake update`.
+3. The proof is checked if the output ends with `Build completed
+   successfully` and the axiom list printed for `wiener_theorem1` (from
+   `#print axioms` at the end of `Theorem1.lean`) is exactly
+   `[propext, Classical.choice, Quot.sound]`. Any `sorryAx` or project-local
+   axiom in that list would mean the proof is incomplete.
+
+After `lake build`, opening the files in VS Code also shows the per-file
+checks.
+
+The theorem statement to review is `WienerTheorem1Statement` in
+`LCHSWiener/Target.lean`, together with the definitions it uses in
+`LCHSWiener/Core.lean` and `LCHSWiener/MeasureFourier.lean`.
+`Theorem1.lean` proves `WienerTheorem1 : WienerTheorem1Statement`.
+
+Do not `import Mathlib` in any file. The top-level `Mathlib.olean` is missing
+from the v4.34.0 cache, so that import would force a very long local build.
+Import specific Mathlib modules instead.
+
+### GitHub Codespaces only
+
+In a Codespace, `/workspaces` is a slow, persistent disk image, while `/tmp`
+is fast local disk that is wiped when the Codespace stops.
+`scripts/fast-build.sh` builds from a copy under `/tmp/lchs-fast`, with the
+sources symlinked back to the workspace. It needs bash, so it does not run
+natively on Windows. It is not needed on an ordinary machine.
 
 ```bash
-scripts/fast-build.sh            # whole library
+scripts/fast-build.sh                               # whole library
 scripts/fast-build.sh LCHSWiener.KernelUpperBound   # one module
 ```
