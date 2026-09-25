@@ -21,19 +21,20 @@ Laplace kernels.  This is the form in which Fubini is used in Section 3.2.
 
 lemma neg_I_mul_real_ne_zero {x : ℝ} (hx : x ≠ 0) :
     -Complex.I * (x : ℂ) ≠ 0 := by
-  exact mul_ne_zero (neg_ne_zero.mpr Complex.I_ne_zero) (ofReal_ne_zero.mpr hx)
+  exact mul_ne_zero (neg_ne_zero.mpr Complex.I_ne_zero) (Complex.ofReal_ne_zero.mpr hx)
 
 lemma exp_neg_I_mul_real (y : ℝ) :
     Complex.exp (-Complex.I * (y : ℂ)) =
       (Real.cos y : ℂ) - (Real.sin y : ℂ) * Complex.I := by
-  have h := Complex.exp_ofReal_mul_I (-y)
-  simpa [Real.cos_neg, Real.sin_neg] using h
+  rw [show -Complex.I * (y : ℂ) = ((-y : ℝ) : ℂ) * Complex.I by push_cast; ring,
+    Complex.exp_ofReal_mul_I, Real.cos_neg, Real.sin_neg]
+  push_cast
+  ring
 
 lemma exp_I_mul_real (y : ℝ) :
     Complex.exp (Complex.I * (y : ℂ)) =
       (Real.cos y : ℂ) + (Real.sin y : ℂ) * Complex.I := by
-  have h := Complex.exp_ofReal_mul_I y
-  simpa [mul_comm] using h
+  rw [mul_comm, Complex.exp_ofReal_mul_I]
 
 /-- Exact finite-band Fourier integral in the convention of the note. -/
 theorem intervalIntegral_exp_neg_I_mul_eq_sinc (r x : ℝ) :
@@ -46,6 +47,7 @@ theorem intervalIntegral_exp_neg_I_mul_eq_sinc (r x : ℝ) :
   by_cases hx : x = 0
   · subst x
     simp
+    ring
   have hc : -Complex.I * (x : ℂ) ≠ 0 := neg_I_mul_real_ne_zero hx
   have hform :
       (∫ t : ℝ in -r..r,
@@ -53,24 +55,35 @@ theorem intervalIntegral_exp_neg_I_mul_eq_sinc (r x : ℝ) :
         (Complex.exp ((-Complex.I * (x : ℂ)) * (r : ℂ)) -
           Complex.exp ((-Complex.I * (x : ℂ)) * (-r : ℂ))) /
             (-Complex.I * (x : ℂ)) := by
-    convert integral_exp_mul_complex (a := -r) (b := r) hc using 1 <;>
-      ring
+    have hfun : (fun t : ℝ => Complex.exp (-Complex.I * (t : ℂ) * (x : ℂ))) =
+        fun t : ℝ => Complex.exp ((-Complex.I * (x : ℂ)) * (t : ℂ)) := by
+      funext t
+      ring_nf
+    rw [hfun, integral_exp_mul_complex hc]
+    push_cast
+    rfl
   rw [hform]
   have hpos :
       Complex.exp ((-Complex.I * (x : ℂ)) * (r : ℂ)) =
         (Real.cos (r * x) : ℂ) -
           (Real.sin (r * x) : ℂ) * Complex.I := by
-    convert exp_neg_I_mul_real (r * x) using 1 <;> push_cast <;> ring
+    rw [← exp_neg_I_mul_real (r * x)]
+    push_cast
+    ring_nf
   have hneg :
       Complex.exp ((-Complex.I * (x : ℂ)) * (-r : ℂ)) =
         (Real.cos (r * x) : ℂ) +
           (Real.sin (r * x) : ℂ) * Complex.I := by
-    convert exp_I_mul_real (r * x) using 1 <;> push_cast <;> ring
+    rw [← exp_I_mul_real (r * x)]
+    push_cast
+    ring_nf
   rw [hpos, hneg]
   have hrx : r * x ≠ 0 := mul_ne_zero hr hx
-  rw [Real.sinc_of_ne_zero hrx]
+  rw [Real.sinc_of_ne_zero hrx, div_eq_iff hc]
+  have hrC : (r : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hr
+  have hxC : (x : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx
   push_cast
-  field_simp [hx, hrx, Complex.I_ne_zero]
+  field_simp
   ring
 
 /-- The identity in the exact scalar-factor form used by `halfLineKernel`. -/

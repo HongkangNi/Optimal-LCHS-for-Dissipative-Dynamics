@@ -43,9 +43,14 @@ LCHSWiener.WienerTheorem1
 6. `WienerDualBound.lean`: Section 3.2 dual lower bound and the two lambda
    branches.
 7. `DensityMeasure.lean`: finite complex measures from integrable densities.
-8. `KernelUpperBound.lean`: Section 3.3 explicit outer kernel, contour identity,
-   total-variation bounds, and low/high lambda witnesses.
-9. `Theorem1.lean`: combines sharp lower and upper bounds with `sInf`.
+8. `CauchyFourier.lean`: Fourier transform of the Cauchy density (via Fourier
+   inversion of `e^{-|x|}`).
+9. `KernelUpperBound.lean`: Section 3.3 explicit outer kernel.  Its half-line
+   Fourier transform is computed without contour integration, from the
+   half-line representation of `Phi_{R,-C}(.-is)`, Fubini against the Cauchy
+   density and `s -> 0`; plus total-variation bounds and low/high lambda
+   witnesses.
+10. `Theorem1.lean`: combines sharp lower and upper bounds with `sInf`.
 
 ## Source audit
 
@@ -64,17 +69,22 @@ so a local build gives an immediate dependency audit.
 
 ## Verification status
 
-The current execution environment does not contain Lean/Lake.  Therefore this
-archive has **not** been compiled here.  It should be treated as a complete
-Lean source proof awaiting compiler/API verification, not as a claim that
-`lake build` has already succeeded.
+The project compiles with Lean 4.34.0 / Mathlib v4.34.0 (`lake build`), and
 
-Expected toolchain: Lean 4.34.0 / Mathlib v4.34.0.
+```
+'LCHSWiener.wiener_theorem1' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
 
-Suggested commands:
+i.e. only the standard Lean axioms are used; there is no `sorry`, `admit` or
+project-local axiom.
+
+The top-level `Mathlib.olean` is missing from the v4.34.0 cache, so no file may
+`import Mathlib`; use specific module imports instead.
+
+In this Codespace `/workspaces` is a slow loop device, so build from a copy on
+local disk:
 
 ```bash
-lake update
-lake build
-lake env lean LCHSWiener/Theorem1.lean
+scripts/fast-build.sh            # whole library
+scripts/fast-build.sh LCHSWiener.KernelUpperBound   # one module
 ```

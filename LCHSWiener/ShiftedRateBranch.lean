@@ -102,7 +102,7 @@ lemma neg_pi_lt_shiftedLogCandidate_im
   have hleft :
       -2 * Real.pi <
         (shiftedRate s z (-r)).arg - (shiftedRate s z r).arg := by
-    exact (abs_lt.mp hdiff).1
+    linarith [(abs_lt.mp hdiff).1]
   linarith
 
 lemma exp_pi_mul_I :
@@ -122,7 +122,6 @@ lemma exp_shiftedLogCandidate
   rw [Complex.exp_add, Complex.exp_sub, Complex.exp_log hm,
     Complex.exp_log hp, exp_pi_mul_I]
   field_simp [hp]
-  ring
 
 /-- Exact principal-log identity used in Section 3.2. -/
 theorem log_neg_shiftedRate_div

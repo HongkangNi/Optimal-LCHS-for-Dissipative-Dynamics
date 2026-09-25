@@ -1,9 +1,14 @@
-import Mathlib
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.FunProp
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+import Mathlib.Tactic.Ring
 
 noncomputable section
 
 open Set
-open MeasureTheory
 
 namespace LCHSWiener
 
@@ -38,15 +43,14 @@ lemma qR_eq_arctan_inv {R : ℝ} (hR : 0 < R) :
   rw [qR, pR, Real.arctan_inv_of_pos hR]
   have hpi : Real.pi ≠ 0 := ne_of_gt Real.pi_pos
   field_simp [hpi]
-  ring
 
 lemma pR_continuous : Continuous pR := by
   unfold pR
   fun_prop
 
 lemma qR_continuous : Continuous qR := by
-  unfold qR
-  fun_prop
+  change Continuous (fun R => 1 - pR R)
+  exact continuous_const.sub pR_continuous
 
 /-- The sharp piecewise value appearing in the theorem. -/
 def sharpValue (p q lam : ℝ) : ℝ :=
@@ -85,13 +89,10 @@ lemma high_test_point
   have hexp_split : q⁻¹ = p / q + 1 := by
     field_simp [hq0]
     linarith
-  have ha_split : a = (p / lam) ^ (p / q) * (p / lam) := by
-    dsimp [a]
-    rw [hexp_split, Real.rpow_add hx]
-    simp
   have hxlam : (p / lam) * lam = p := by field_simp [hlam0]
   refine ⟨ha0, ha1, ?_⟩
-  rw [hap, ha_split]
+  rw [hap, hexp_split, Real.rpow_add hx]
+  simp only [Real.rpow_one]
   rw [mul_assoc, hxlam]
   have hqeq : q = 1 - p := by linarith
   rw [hqeq]

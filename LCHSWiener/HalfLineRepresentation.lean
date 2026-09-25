@@ -1,11 +1,12 @@
-import Mathlib
+import Mathlib.Tactic.Linarith
 import LCHSWiener.KernelTransform
 import LCHSWiener.ConvolutionExponential
 import LCHSWiener.MeasureFourier
 
 noncomputable section
 
-open Set MeasureTheory scoped BigOperators
+open Set MeasureTheory
+open scoped BigOperators
 
 namespace LCHSWiener
 
@@ -31,7 +32,7 @@ theorem shiftedDual_eq_one_add_integral
         halfLineCharacter z x * shiftedDualDensity r c s x := by
   unfold shiftedDualDensity
   rw [one_add_integral_character_convolutionExponentialDensity
-        (integrable_halfLineKernel hs) hz]
+        (integrable_halfLineKernel hs) (fun x hx => halfLineKernel_of_nonpos hx) hz]
   exact (exp_halfLineKernelTransform_eq_dualPhiC_shift hr hs hz).symm
 
 /-- The density is integrable. -/
@@ -41,6 +42,14 @@ theorem integrable_shiftedDualDensity
   unfold shiftedDualDensity
   exact integrable_convolutionExponentialDensity (integrable_halfLineKernel hs)
 
+/-- The density vanishes pointwise on the closed negative half-line. -/
+theorem shiftedDualDensity_of_nonpos {r c s x : ℝ} (hx : x ≤ 0) :
+    shiftedDualDensity r c s x = 0 := by
+  unfold shiftedDualDensity convolutionExponentialDensity
+  rw [tsum_congr fun n =>
+    convExpTerm_of_nonpos (fun y hy => halfLineKernel_of_nonpos hy) n hx]
+  exact tsum_zero
+
 /-- The density is supported on the nonnegative half-line, up to the irrelevant
 Lebesgue-null point `0`. -/
 theorem shiftedDualDensity_ae_eq_zero_on_nonpos
@@ -48,25 +57,11 @@ theorem shiftedDualDensity_ae_eq_zero_on_nonpos
     ∀ᵐ x : ℝ ∂volume.restrict (Set.Iic 0), shiftedDualDensity r c s x = 0 := by
   -- Every positive convolution power vanishes on `x≤0`; the series therefore
   -- vanishes there term by term.
-  filter_upwards with x
-  have hx : x ≤ 0 := by aesop
+  filter_upwards [ae_restrict_mem measurableSet_Iic] with x hx
   unfold shiftedDualDensity convolutionExponentialDensity
-  apply tsum_eq_zero
-  intro n
-  unfold convExpTerm
-  suffices posConvPow (halfLineKernel r c s) n x = 0 by simp [this]
-  induction n with
-  | zero => exact halfLineKernel_of_nonpos hx
-  | succ n ihn =>
-      rw [posConvPow_succ]
-      unfold MeasureTheory.posConvolution
-      apply integral_eq_zero_of_ae
-      filter_upwards with t
-      by_cases ht : 0 < t
-      · have hxt : x - t ≤ 0 := by linarith
-        -- the second factor is the original half-line kernel
-        simp [halfLineKernel_of_nonpos hxt]
-      · simp [Set.indicator_of_not_mem (not_lt.mpr (le_of_not_gt ht))]
+  rw [tsum_congr fun n =>
+    convExpTerm_of_nonpos (fun y hy => halfLineKernel_of_nonpos hy) n (Set.mem_Iic.1 hx)]
+  exact tsum_zero
 
 /-- Convenient transform notation for the density part. -/
 def shiftedDualDensityTransform (r c s : ℝ) (z : ℂ) : ℂ :=

@@ -36,8 +36,7 @@ lemma shiftedRectangleIntegrand_eq_factors
       halfLineCharacter z x * (Real.exp (-s * x) : ℂ) *
         Complex.exp (-Complex.I * (t : ℂ) * (x : ℂ)) := by
   unfold shiftedRectangleIntegrand halfLineCharacter shiftedRate
-  rw [← Complex.ofReal_exp]
-  rw [← Complex.exp_add, ← Complex.exp_add]
+  rw [Complex.ofReal_exp, ← Complex.exp_add, ← Complex.exp_add]
   congr 1
   push_cast
   ring
@@ -85,7 +84,6 @@ theorem character_mul_kernelCore_eq_bandIntegral
   rw [intervalIntegral_shiftedRectangleIntegrand]
   unfold halfLineKernelCore
   push_cast
-  rw [Complex.ofReal_exp]
   ring
 
 /-- The full kernel transform is the positive-half-line integral of the kernel
@@ -101,7 +99,7 @@ theorem halfLineKernelTransform_eq_Ioi
   funext x
   by_cases hx : x ∈ Set.Ioi (0 : ℝ)
   · simp [Set.indicator_of_mem hx]
-  · simp [Set.indicator_of_not_mem hx]
+  · simp [Set.indicator_of_notMem hx]
 
 /-- A compact-frequency indicator used as a separable integrable majorant. -/
 def bandOne (r : ℝ) : ℝ → ℝ :=
@@ -155,7 +153,7 @@ theorem integrable_shiftedRectangleCutoff
     by_cases ht : t ∈ Set.Ioc (-r) r
     · by_cases hx : x ∈ Set.Ioi (0 : ℝ)
       · have hx0 : 0 ≤ x := le_of_lt hx
-        have hnorm := norm_shiftedRectangleIntegrand_le_exp hz t hx0
+        have hnorm := norm_shiftedRectangleIntegrand_le_exp (s := s) hz t hx0
         simpa [shiftedRectangleCutoff, bandOne, positiveDecay, ht, hx,
           Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le] using hnorm
       · simp [shiftedRectangleCutoff, bandOne, positiveDecay, ht, hx]
@@ -181,11 +179,11 @@ theorem integral_shiftedRectangleCutoff_in_x
     rw [Set.indicator_of_mem ht]
     exact integral_exp_neg_shiftedRate_Ioi hs hz t
   · have hfun :
-        (fun x : ℝ => shiftedRectangleCutoff r s z (t, x)) = 0 := by
+        (fun x : ℝ => shiftedRectangleCutoff r s z (t, x)) = fun _ => (0 : ℂ) := by
       funext x
       simp [shiftedRectangleCutoff, ht]
     rw [hfun, integral_zero]
-    simp [Set.indicator_of_not_mem ht]
+    simp [Set.indicator_of_notMem ht]
 
 /-- Integrating the cut-off rectangle first in the compact band variable. -/
 theorem integral_shiftedRectangleCutoff_in_t
@@ -207,11 +205,11 @@ theorem integral_shiftedRectangleCutoff_in_t
     rw [Set.indicator_of_mem hx]
     rw [← intervalIntegral.integral_of_le (by linarith : -r ≤ r)]
   · have hfun :
-        (fun t : ℝ => shiftedRectangleCutoff r s z (t, x)) = 0 := by
+        (fun t : ℝ => shiftedRectangleCutoff r s z (t, x)) = fun _ => (0 : ℂ) := by
       funext t
       simp [shiftedRectangleCutoff, hx]
     rw [hfun, integral_zero]
-    simp [Set.indicator_of_not_mem hx]
+    simp [Set.indicator_of_notMem hx]
 
 /-- Fubini in the exact form needed for the Wiener representation. -/
 theorem Ioi_integral_band_eq_band_integral_Ioi
@@ -224,7 +222,7 @@ theorem Ioi_integral_band_eq_band_integral_Ioi
   have hswap :
       (∫ t : ℝ, ∫ x : ℝ, shiftedRectangleCutoff r s z (t, x)) =
         ∫ x : ℝ, ∫ t : ℝ, shiftedRectangleCutoff r s z (t, x) := by
-    exact MeasureTheory.integral_integral_swap (by simpa using hInt)
+    exact MeasureTheory.integral_integral_swap hInt
   have hleft :
       (∫ t : ℝ, ∫ x : ℝ, shiftedRectangleCutoff r s z (t, x)) =
         ∫ t : ℝ in -r..r, (shiftedRate s z t)⁻¹ := by
@@ -292,6 +290,6 @@ theorem exp_halfLineKernelTransform_eq_dualPhiC_shift
   rw [log_dualMobius_shift hr hs hz]
   congr 1
   push_cast
-  ring
+  linear_combination ((c : ℂ) * (Real.pi : ℂ)) * Complex.I_sq
 
 end LCHSWiener

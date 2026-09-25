@@ -8,6 +8,7 @@ noncomputable section
 
 open Set
 open MeasureTheory
+open scoped ENNReal
 
 namespace LCHSWiener
 

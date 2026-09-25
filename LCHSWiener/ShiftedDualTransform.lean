@@ -39,12 +39,11 @@ def shiftedRate (s : ℝ) (z : ℂ) (t : ℝ) : ℂ :=
 
 @[simp] lemma shiftedRate_re (s : ℝ) (z : ℂ) (t : ℝ) :
     (shiftedRate s z t).re = s - z.im := by
-  simp [shiftedRate, Complex.mul_re]
+  simp [shiftedRate, Complex.mul_re, sub_eq_add_neg]
 
 @[simp] lemma shiftedRate_im (s : ℝ) (z : ℂ) (t : ℝ) :
     (shiftedRate s z t).im = z.re + t := by
   simp [shiftedRate, Complex.mul_im]
-  ring
 
 lemma shiftedRate_re_pos {s : ℝ} (hs : 0 < s) {z : ℂ} (hz : z.im ≤ 0)
     (t : ℝ) : 0 < (shiftedRate s z t).re := by
@@ -62,7 +61,8 @@ lemma shiftedRate_ne_zero {s : ℝ} (hs : 0 < s) {z : ℂ}
 
 lemma neg_shiftedRate_re_neg {s : ℝ} (hs : 0 < s) {z : ℂ}
     (hz : z.im ≤ 0) (t : ℝ) : (-shiftedRate s z t).re < 0 := by
-  simp only [map_neg, shiftedRate_re]
+  change -(shiftedRate s z t).re < 0
+  rw [shiftedRate_re]
   linarith
 
 lemma continuous_shiftedRate (s : ℝ) (z : ℂ) :
@@ -79,7 +79,10 @@ lemma hasDerivAt_shiftedRate (s : ℝ) (z : ℂ) (t : ℝ) :
     simpa [add_comm] using hreal.add_const z
   have hmul : HasDerivAt (fun u : ℝ => Complex.I * (z + (u : ℂ))) Complex.I t := by
     simpa using hsum.const_mul Complex.I
-  simpa [shiftedRate] using hmul.const_add (s : ℂ)
+  change HasDerivAt
+    (fun u : ℝ => (s : ℂ) + Complex.I * (z + (u : ℂ))) Complex.I t
+  convert (hasDerivAt_const t (s : ℂ)).add hmul using 1 <;>
+    simp [Pi.add_apply]
 
 /-- Along the shifted-rate path, the principal logarithm has derivative
 `i / A(t)`. -/
@@ -163,8 +166,25 @@ lemma dualMobius_shift_eq_rate_ratio
     dualMobius r (z - Complex.I * (s : ℂ)) =
       - shiftedRate s z (-r) / shiftedRate s z r := by
   have hp : shiftedRate s z r ≠ 0 := shiftedRate_ne_zero hs hz r
-  unfold dualMobius shiftedRate
-  field_simp [hp]
+  have hrel : shiftedRate s z r =
+      Complex.I * ((r : ℂ) + z - Complex.I * (s : ℂ)) := by
+    unfold shiftedRate
+    linear_combination (s : ℂ) * Complex.I_sq
+  have hnrel : shiftedRate s z (-r) =
+      Complex.I * ((-r : ℂ) + z - Complex.I * (s : ℂ)) := by
+    unfold shiftedRate
+    push_cast
+    linear_combination (s : ℂ) * Complex.I_sq
+  have hden : (r : ℂ) + z - Complex.I * (s : ℂ) ≠ 0 := by
+    intro h
+    apply hp
+    rw [hrel, h]
+    simp
+  rw [hrel, hnrel]
+  unfold dualMobius
+  have hden' : (r : ℂ) + (z - Complex.I * (s : ℂ)) ≠ 0 := by
+    rwa [← add_sub_assoc]
+  rw [div_eq_div_iff hden' (mul_ne_zero Complex.I_ne_zero hden)]
   ring
 
 /-- The finite-interval logarithmic integral in the symmetric form needed by

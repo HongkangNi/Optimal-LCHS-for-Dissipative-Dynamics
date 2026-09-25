@@ -49,7 +49,7 @@ def dualA (c : ℝ) : ℝ := Real.exp (-Real.pi * c)
 
 lemma dualA_le_one {c : ℝ} (hc : 0 ≤ c) : dualA c ≤ 1 := by
   rw [dualA, ← Real.exp_zero]
-  exact Real.exp_le_exp.mpr (by positivity)
+  exact Real.exp_le_exp.mpr (by nlinarith [Real.pi_pos])
 
 lemma neg_I_mem_lowerHalfPlane : -Complex.I ∈ lowerHalfPlane := by
   simp [lowerHalfPlane]
@@ -71,15 +71,8 @@ roots; this is the identity
 lemma dualMobius_im_formula {R : ℝ} {z : ℂ} (hz : z.im < 0) :
     (dualMobius R z).im =
       (-2 * R * z.im) / Complex.normSq ((R : ℂ) + z) := by
-  have hden : (R : ℂ) + z ≠ 0 := dualMobius_den_ne_zero hz
-  rw [dualMobius, div_eq_mul_inv]
-  rw [Complex.inv_def]
-  simp only [Complex.mul_im, Complex.sub_re, Complex.sub_im,
-    Complex.ofReal_re, Complex.ofReal_im, Complex.add_re, Complex.add_im,
-    Complex.conj_re, Complex.conj_im]
-  have hns : Complex.normSq ((R : ℂ) + z) ≠ 0 := by
-    exact (Complex.normSq_ne_zero).2 hden
-  field_simp [hns]
+  rw [dualMobius, Complex.div_im]
+  simp [Complex.normSq_apply]
   ring
 
 /-- For `R>0`, the Mobius map sends the strict lower half-plane to the
@@ -90,7 +83,9 @@ lemma dualMobius_im_pos {R : ℝ} {z : ℂ}
   have hden : (R : ℂ) + z ≠ 0 := dualMobius_den_ne_zero hz
   have hns : 0 < Complex.normSq ((R : ℂ) + z) :=
     (Complex.normSq_pos).2 hden
-  exact div_pos (by positivity) hns
+  apply div_pos
+  · nlinarith
+  · exact hns
 
 /-- The Mobius factor belongs to the principal-log slit plane on the lower
 half-plane. -/
@@ -111,7 +106,7 @@ lemma dualMobius_arg_mem {R : ℝ} {z : ℂ}
       (Complex.arg_nonneg_iff).2 (le_of_lt him)
     refine lt_of_le_of_ne hnonneg ?_
     intro hzero
-    have hs : Real.sin (dualMobius R z).arg = 0 := by rw [hzero, Real.sin_zero]
+    have hs : Real.sin (dualMobius R z).arg = 0 := by rw [← hzero, Real.sin_zero]
     rw [Complex.sin_arg] at hs
     have hn : 0 < ‖dualMobius R z‖ := norm_pos_iff.mpr (by
       intro hm
@@ -128,7 +123,7 @@ lemma dualMobius_arg_mem {R : ℝ} {z : ℂ}
 /-- The Mobius map is analytic at every point of the lower half-plane. -/
 lemma analyticAt_dualMobius_of_den_ne {R : ℝ} {z : ℂ}
     (hden : (R : ℂ) + z ≠ 0) : AnalyticAt ℂ (dualMobius R) z := by
-  rw [dualMobius]
+  unfold dualMobius
   exact (analyticAt_const.sub analyticAt_id).div
     (analyticAt_const.add analyticAt_id) hden
 
@@ -149,7 +144,7 @@ theorem analyticOnNhd_dualPhiC {R c : ℝ} (hR : 0 < R) :
   intro z hz
   have hz' : z.im < 0 := hz
   have hlog := analyticAt_log_dualMobius hR hz'
-  rw [dualPhiC]
+  unfold dualPhiC
   have hconst : AnalyticAt ℂ (fun _ : ℂ => (-(Real.pi * c : ℝ) : ℂ)) z :=
     analyticAt_const
   have hmul : AnalyticAt ℂ
@@ -164,9 +159,7 @@ lemma norm_dualPhiC (R c : ℝ) (z : ℂ) :
       Real.exp (-Real.pi * c + c * (dualMobius R z).arg) := by
   rw [dualPhiC, Complex.norm_exp]
   congr 1
-  rw [Complex.log_im]
-  simp [Complex.mul_re]
-  ring
+  simp [Complex.mul_re, Complex.log_im]
 
 /-- The `H^infty` bound from (3.6): in the strict lower half-plane,
 `|Phi| <= 1` whenever `c >= 0`. -/
@@ -184,7 +177,8 @@ lemma dualMobius_real_pos {R k : ℝ} (hk : |k| < R) :
     0 < ((R - k) / (R + k)) := by
   have hklo : -R < k := (abs_lt.mp hk).1
   have hkhi : k < R := (abs_lt.mp hk).2
-  exact div_pos (sub_pos.mpr hkhi) (add_pos_of_neg_lt_left hklo)
+  have hden : 0 < R + k := by linarith
+  exact div_pos (sub_pos.mpr hkhi) hden
 
 /-- Inside the interval, the principal argument is zero. -/
 lemma dualMobius_arg_real_inside {R k : ℝ} (hk : |k| < R) :
@@ -234,7 +228,8 @@ theorem analyticAt_dualPhiC_real_inside {R c k : ℝ} (hk : |k| < R) :
   have hmul : AnalyticAt ℂ
       (fun w : ℂ => Complex.I * (c : ℂ) * Complex.log (dualMobius R w)) (k : ℂ) := by
     exact (analyticAt_const.mul analyticAt_const).mul hlog
-  simpa [dualPhiC] using (hconst.sub hmul).cexp'
+  unfold dualPhiC
+  exact (hconst.sub hmul).cexp'
 
 /-- In particular the boundary-value function is continuous at each real
 point strictly inside `(-R,R)`. -/
@@ -253,7 +248,11 @@ theorem analyticAt_dualPhiC_on_smaller_closed_interval
 /-- For a real point outside `[-R,R]`, the Mobius factor is negative. -/
 lemma dualMobius_real_neg {R k : ℝ} (hR : 0 < R) (hk : R < |k|) :
     (R - k) / (R + k) < 0 := by
-  rcases lt_or_gt_of_ne (ne_of_gt hR) k with hkneg | hkpos
+  have hk0 : k ≠ 0 := by
+    intro hkzero
+    rw [hkzero, abs_zero] at hk
+    linarith
+  rcases lt_or_gt_of_ne hk0 with hkneg | hkpos
   · have hkabs : |k| = -k := abs_of_neg hkneg
     rw [hkabs] at hk
     have hnum : 0 < R - k := by linarith
@@ -288,6 +287,7 @@ lemma norm_dualPhiC_real_outside {R c k : ℝ}
 lemma dualMobius_neg_I (R : ℝ) :
     dualMobius R (-Complex.I) = ((R : ℂ) + Complex.I) / ((R : ℂ) - Complex.I) := by
   simp [dualMobius]
+  ring
 
 /-- Its norm at `-i` is one. -/
 lemma norm_dualMobius_neg_I {R : ℝ} (hR : 0 < R) :
@@ -295,10 +295,10 @@ lemma norm_dualMobius_neg_I {R : ℝ} (hR : 0 < R) :
   rw [dualMobius_neg_I, norm_div]
   have h1 : ‖(R : ℂ) + Complex.I‖ = Real.sqrt (R^2 + 1) := by
     rw [Complex.norm_def]
-    simp [Complex.normSq_apply]
+    simp [Complex.normSq_apply, pow_two]
   have h2 : ‖(R : ℂ) - Complex.I‖ = Real.sqrt (R^2 + 1) := by
     rw [Complex.norm_def]
-    simp [Complex.normSq_apply]
+    simp [Complex.normSq_apply, pow_two]
   rw [h1, h2]
   have hs : Real.sqrt (R ^ 2 + 1) ≠ 0 := by positivity
   exact div_self hs
@@ -352,7 +352,6 @@ lemma two_arctan_inv_eq_pi_mul_qR {R : ℝ} (hR : 0 < R) :
     2 * Real.arctan R⁻¹ = Real.pi * qR R := by
   rw [qR_eq_arctan_inv hR]
   field_simp [Real.pi_ne_zero]
-  ring
 
 /-- Exact value in (3.6): if `a = exp(-pi*c)`, then
 `Phi_{R,c}(-i) = a^(p_R)`. -/
@@ -362,21 +361,19 @@ theorem dualPhiC_neg_I {R c : ℝ} (hR : 0 < R) :
   have htheta := two_arctan_inv_eq_pi_mul_qR hR
   have hpq := pR_add_qR R
   have hexponent :
-      (-(Real.pi * c : ℂ) - Complex.I * (c : ℂ) *
+      ((-(Real.pi * c : ℝ) : ℂ) - Complex.I * (c : ℂ) *
           ((2 * Real.arctan R⁻¹ : ℝ) * Complex.I)) =
         (((-Real.pi * c) * pR R : ℝ) : ℂ) := by
-    push_cast
     rw [htheta]
-    simp [Complex.I_mul_I]
     have hp : pR R = 1 - qR R := by linarith
     rw [hp]
-    ring
+    apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im] <;> ring
   rw [hexponent, ← Complex.ofReal_exp]
   norm_cast
   rw [dualA, ← Real.exp_mul]
 
 /-- The exact statement of (3.6), collected in one theorem.  Endpoint values
-`k = +/-R` are intentionally excluded, exactly as in the note. -/
+`k = ±R` are intentionally excluded, exactly as in the note. -/
 theorem dualPhiC_properties {R c : ℝ} (hR : 0 < R) (hc : 0 ≤ c) :
     AnalyticOnNhd ℂ (dualPhiC R c) lowerHalfPlane ∧
     (∀ z ∈ lowerHalfPlane, ‖dualPhiC R c z‖ ≤ 1) ∧

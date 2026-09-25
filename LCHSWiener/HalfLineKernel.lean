@@ -79,13 +79,9 @@ lemma norm_halfLineKernelCore_le (r c s x : ℝ) :
   have hsinc : |Real.sinc (r * x)| ≤ 1 := Real.abs_sinc_le_one _
   have hcoef : 0 ≤ |(-2 * c * r : ℝ)| := abs_nonneg _
   have hexp : 0 ≤ Real.exp (-s * x) := (Real.exp_pos _).le
-  rw [halfLineKernelCore, Complex.norm_real]
-  simp only [abs_mul, abs_of_pos (Real.exp_pos _)]
-  calc
-    |(-2 * c * r : ℝ)| * Real.exp (-s * x) * |Real.sinc (r * x)|
-        ≤ |(-2 * c * r : ℝ)| * Real.exp (-s * x) * 1 :=
-          mul_le_mul_of_nonneg_left hsinc (mul_nonneg hcoef hexp)
-    _ = |(-2 * c * r : ℝ)| * Real.exp (-s * x) := by ring
+  simpa [halfLineKernelCore, Complex.norm_exp, abs_mul, mul_assoc,
+    abs_of_pos (Real.exp_pos _)] using
+      mul_le_mul_of_nonneg_left hsinc (mul_nonneg hcoef hexp)
 
 /-- The cut-off kernel satisfies the same exponential majorant on `x>0`. -/
 lemma norm_halfLineKernel_le_of_pos {r c s x : ℝ} (hx : 0 < x) :
@@ -118,7 +114,6 @@ lemma norm_halfLineCharacter (z : ℂ) (x : ℝ) :
   rw [halfLineCharacter, Complex.norm_exp]
   congr 1
   simp [Complex.mul_re]
-  ring
 
 /-- In the closed lower half-plane the character has norm at most one for
 nonnegative time. -/
@@ -173,7 +168,6 @@ lemma halfLineKernelCore_eq_sin_div {r c s x : ℝ} (hx : x ≠ 0) :
     simp [halfLineKernelCore]
   · rw [halfLineKernelCore, Real.sinc_of_ne_zero (mul_ne_zero hr hx)]
     push_cast
-    field_simp [hx]
-    ring
+    field_simp [hx, hr]
 
 end LCHSWiener
