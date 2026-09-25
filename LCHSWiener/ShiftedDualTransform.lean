@@ -81,8 +81,8 @@ lemma hasDerivAt_shiftedRate (s : ℝ) (z : ℂ) (t : ℝ) :
     simpa using hsum.const_mul Complex.I
   change HasDerivAt
     (fun u : ℝ => (s : ℂ) + Complex.I * (z + (u : ℂ))) Complex.I t
-  convert (hasDerivAt_const t (s : ℂ)).add hmul using 1 <;>
-    simp [Pi.add_apply]
+  convert (hasDerivAt_const t (s : ℂ)).add hmul using 1
+  simp
 
 /-- Along the shifted-rate path, the principal logarithm has derivative
 `i / A(t)`. -/
@@ -147,8 +147,7 @@ theorem integral_exp_neg_shiftedRate_Ioi
   have hneg : (-shiftedRate s z t).re < 0 :=
     neg_shiftedRate_re_neg hs hz t
   rw [integral_exp_mul_complex_Ioi hneg 0]
-  have hne := shiftedRate_ne_zero hs hz t
-  simp [hne]
+  simp
 
 /-- Integrability companion to `integral_exp_neg_shiftedRate_Ioi`. -/
 theorem integrableOn_exp_neg_shiftedRate_Ioi

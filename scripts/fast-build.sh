@@ -5,6 +5,8 @@
 #
 # usage: scripts/fast-build.sh [lake build target ...]
 set -euo pipefail
+# elan is only on PATH in login shells; make the script work from any terminal.
+export PATH="$HOME/.elan/bin:$PATH"
 SRC=$(cd "$(dirname "$0")/.." && pwd)
 DST=${LCHS_FAST_DIR:-/tmp/lchs-fast}
 

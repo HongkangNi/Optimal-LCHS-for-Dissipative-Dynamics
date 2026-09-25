@@ -42,7 +42,7 @@ lemma continuous_realCharacter_uncurry :
 /-- The Fourier integral of an `L¹` function is uniformly bounded by its
 `L¹` norm. -/
 theorem norm_integral_mul_realCharacter_le
-    {g : ℝ → ℂ} (hg : Integrable g volume) (k : ℝ) :
+    {g : ℝ → ℂ} (_hg : Integrable g volume) (k : ℝ) :
     ‖∫ x, g x * realCharacter k x‖ ≤ ∫ x, ‖g x‖ := by
   refine (norm_integral_le_integral_norm _).trans (le_of_eq ?_)
   apply integral_congr_ae

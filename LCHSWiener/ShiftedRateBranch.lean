@@ -39,7 +39,7 @@ lemma shiftedRate_arg_mem_Ioo
   exact (abs_lt.mp h)
 
 lemma tan_arg_shiftedRate
-    {s : ℝ} (hs : 0 < s) {z : ℂ} (hz : z.im ≤ 0) (t : ℝ) :
+    {s : ℝ} (_hs : 0 < s) {z : ℂ} (_hz : z.im ≤ 0) (t : ℝ) :
     Real.tan (shiftedRate s z t).arg = (z.re + t) / (s - z.im) := by
   rw [Complex.tan_arg, shiftedRate_im, shiftedRate_re]
 
@@ -90,8 +90,8 @@ lemma shiftedLogCandidate_im_le_pi
   linarith
 
 lemma neg_pi_lt_shiftedLogCandidate_im
-    {r s : ℝ} (hr : 0 < r) (hs : 0 < s)
-    {z : ℂ} (hz : z.im ≤ 0) :
+    {r s : ℝ} (_hr : 0 < r) (_hs : 0 < s)
+    {z : ℂ} (_hz : z.im ≤ 0) :
     -Real.pi <
       (Complex.log (shiftedRate s z (-r)) -
         Complex.log (shiftedRate s z r) +

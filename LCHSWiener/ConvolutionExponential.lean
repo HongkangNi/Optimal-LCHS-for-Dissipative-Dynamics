@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Convolution
+import Mathlib.MeasureTheory.Constructions.Polish.Basic
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.GCongr
@@ -194,7 +195,7 @@ theorem integrable_convolutionExponentialDensity
     exact htop
   -- almost every point has an absolutely summable series
   have hae : ∀ᵐ x ∂volume, Summable fun n => convExpTerm h n x := by
-    filter_upwards [ae_lt_top' (AEMeasurable.ennreal_tsum fun n => (hmeas n).enorm) hlint]
+    filter_upwards [ae_lt_top' (AEMeasurable.tsum fun n => (hmeas n).enorm) hlint]
       with x hx
     refine Summable.of_norm ?_
     have hx' : ∑' n, (‖convExpTerm h n x‖₊ : ENNReal) ≠ ⊤ := hx.ne
@@ -227,7 +228,7 @@ theorem integral_mul_convolutionExponentialDensity_eq_tsum
     · rw [enorm_mul]
       calc ‖m x‖ₑ * ‖convExpTerm h n x‖ₑ ≤ 1 * ‖convExpTerm h n x‖ₑ := by
             gcongr
-            rw [← ofReal_norm_eq_enorm, ← ENNReal.ofReal_one]
+            rw [← ofReal_norm, ← ENNReal.ofReal_one]
             exact ENNReal.ofReal_le_ofReal (hmb x hx)
         _ = ‖convExpTerm h n x‖ₑ := one_mul _
     · simp [convExpTerm_of_nonpos hsupp n (le_of_not_gt hx)]

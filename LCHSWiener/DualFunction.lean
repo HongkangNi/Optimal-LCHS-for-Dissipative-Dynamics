@@ -68,7 +68,7 @@ roots; this is the identity
 
   Im ((R-z)/(R+z)) = -2 R Im(z) / |R+z|^2.
 -/
-lemma dualMobius_im_formula {R : ℝ} {z : ℂ} (hz : z.im < 0) :
+lemma dualMobius_im_formula {R : ℝ} {z : ℂ} (_hz : z.im < 0) :
     (dualMobius R z).im =
       (-2 * R * z.im) / Complex.normSq ((R : ℂ) + z) := by
   rw [dualMobius, Complex.div_im]
@@ -304,7 +304,7 @@ lemma norm_dualMobius_neg_I {R : ℝ} (hR : 0 < R) :
   exact div_self hs
 
 /-- Real part of the Mobius factor at `-i`. -/
-lemma dualMobius_neg_I_re {R : ℝ} (hR : 0 < R) :
+lemma dualMobius_neg_I_re {R : ℝ} (_hR : 0 < R) :
     (dualMobius R (-Complex.I)).re = (R^2 - 1) / (R^2 + 1) := by
   rw [dualMobius_neg_I, Complex.div_re]
   simp [Complex.normSq_apply]
@@ -367,7 +367,8 @@ theorem dualPhiC_neg_I {R c : ℝ} (hR : 0 < R) :
     rw [htheta]
     have hp : pR R = 1 - qR R := by linarith
     rw [hp]
-    apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im] <;> ring
+    apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im]
+    ring
   rw [hexponent, ← Complex.ofReal_exp]
   norm_cast
   rw [dualA, ← Real.exp_mul]

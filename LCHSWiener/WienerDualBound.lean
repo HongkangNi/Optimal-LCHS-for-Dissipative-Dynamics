@@ -250,7 +250,7 @@ theorem dual_residual_gap_norm_le_tv
 
 /-- Integral of the dual boundary value over a measure supported in `[-R,R]`. -/
 theorem norm_integral_dual_le_dualA_mul_tv
-    {R r c : ℝ} (hR : 0 < R) (hRr : R < r)
+    {R r c : ℝ} (_hR : 0 < R) (hRr : R < r)
     {mu : FiniteCMeasure} (hsupp : SupportedIn R mu) :
     ‖∫ᵛ k : ℝ, dualPhiC r c (k:ℂ) ∂[cmul; mu.1]‖
       ≤ dualA c * tv mu := by
@@ -330,7 +330,7 @@ theorem wiener_cost_lower_of_a
 
 /-- Low-`lambda` branch of the sharp lower bound. -/
 theorem wiener_lower_low
-    {R lam e : ℝ} (hR : 0 < R) (hlam : lam ≤ pR R)
+    {R lam e : ℝ} (hR : 0 < R) (_hlam : lam ≤ pR R)
     (he : e ∈ wienerCosts R lam) :
     1-lam ≤ e := by
   simpa using wiener_cost_lower_of_a hR (a:=1) zero_lt_one le_rfl he

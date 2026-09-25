@@ -23,7 +23,7 @@ lemma pR_pos {R : ℝ} (hR : 0 < R) : 0 < pR R := by
   have ha : 0 < Real.arctan R := (Real.arctan_pos).2 hR
   positivity
 
-lemma pR_lt_one {R : ℝ} (hR : 0 < R) : pR R < 1 := by
+lemma pR_lt_one {R : ℝ} (_hR : 0 < R) : pR R < 1 := by
   rw [pR]
   have hpi : 0 < Real.pi := Real.pi_pos
   have ha : Real.arctan R < Real.pi / 2 := Real.arctan_lt_pi_div_two R
@@ -104,8 +104,8 @@ form naturally produced by the `s ↓ 0` regularisation in the Wiener proof.
 -/
 theorem wiener_minimax_of_sharp_bounds
     {costs : ℝ → Set ℝ} {p q lam : ℝ}
-    (hp : 0 < p) (hq : 0 < q) (hpq : p + q = 1)
-    (hlam0 : 0 ≤ lam)
+    (_hp : 0 < p) (_hq : 0 < q) (_hpq : p + q = 1)
+    (_hlam0 : 0 ≤ lam)
     (lower_lo : lam ≤ p → ∀ e ∈ costs lam, 1 - lam ≤ e)
     (lower_hi : p ≤ lam → ∀ e ∈ costs lam,
       q * (p / lam) ^ (p / q) ≤ e)
@@ -114,7 +114,7 @@ theorem wiener_minimax_of_sharp_bounds
       e < q * (p / lam) ^ (p / q) + eps) :
     sInf (costs lam) = sharpValue p q lam := by
   by_cases hlamp : lam ≤ p
-  · rw [sharpValue, if_pos hlamp]
+  · rw [sharpValue, ite_eq_left hlamp]
     obtain ⟨e0, he0, _⟩ := upper_lo hlamp 1 zero_lt_one
     have hne : (costs lam).Nonempty := ⟨e0, he0⟩
     have hbdd : BddBelow (costs lam) := by
@@ -130,7 +130,7 @@ theorem wiener_minimax_of_sharp_bounds
       intro x hx
       exact lower_lo hlamp x hx
   · have hplam : p ≤ lam := le_of_not_ge hlamp
-    rw [sharpValue, if_neg hlamp]
+    rw [sharpValue, ite_eq_right hlamp]
     obtain ⟨e0, he0, _⟩ := upper_hi hplam 1 zero_lt_one
     have hne : (costs lam).Nonempty := ⟨e0, he0⟩
     have hbdd : BddBelow (costs lam) := by

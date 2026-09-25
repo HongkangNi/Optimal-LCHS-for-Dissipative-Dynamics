@@ -77,7 +77,7 @@ theorem intervalIntegral_shiftedRectangleIntegrand
 /-- On the positive half-line, the original kernel integrand is exactly
 `-c` times the finite-band Laplace integral. -/
 theorem character_mul_kernelCore_eq_bandIntegral
-    {r c s x : ℝ} (hx : 0 < x) (z : ℂ) :
+    {r c s x : ℝ} (_hx : 0 < x) (z : ℂ) :
     halfLineCharacter z x * halfLineKernelCore r c s x =
       (-(c : ℂ)) *
         (∫ t : ℝ in -r..r, shiftedRectangleIntegrand s z t x) := by
