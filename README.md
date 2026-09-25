@@ -87,12 +87,16 @@ matrices of every dimension `d`, with the operator norm.
   RealizationLemma → MatrixTheorem1Statement`.
 - `PolyApprox.lean`: Section 4.1, approximation of `Φ` on `K ∪ {-i}` by
   `P(e^{-ihz})` with `|P| ≤ 1` on the closed unit disc.
-- `Realization.lean`: `PolynomialRealization → RealizationLemma`, where
-  `PolynomialRealization` is the part of Sections 4.2–4.3 still to be
-  formalized (GQSP decomposition and the finite Fourier clock).
+- `FejerRiesz.lean`: Fejér–Riesz factorization in the strictly positive case.
+- `GQSP.lean`: Section 4.2, the GQSP decomposition by layer stripping; every
+  polynomial with `|P| ≤ 1` on the closed unit disc is, up to any `ε > 0`, the
+  matrix element `⟨0| V_k D(w) ⋯ D(w) V_0 |0⟩` with 2×2 unitaries `V_j`.
+- `Realization.lean`: `ProductRealization → PolynomialRealization →
+  RealizationLemma → MatrixTheorem1Statement`. `ProductRealization` (Section
+  4.3, the finite Fourier clock) is the part still to be formalized.
 
 The upper bound is proved unconditionally; the lower bound currently depends on
-`PolynomialRealization`.
+`ProductRealization`.
 
 ## Verification status
 

@@ -1,6 +1,7 @@
 import LCHSWiener.PolyApprox
 import LCHSWiener.OperatorLCHS
 import LCHSWiener.MatrixTheorem1
+import LCHSWiener.GQSP
 
 noncomputable section
 
@@ -60,5 +61,49 @@ theorem realizationLemma_of_polynomialRealization (hpoly : PolynomialRealization
 theorem MatrixTheorem1_of_polynomialRealization (hpoly : PolynomialRealization) :
     MatrixTheorem1Statement :=
   MatrixTheorem1_of_realization (realizationLemma_of_polynomialRealization hpoly)
+
+/-! ### Reducing to realizing GQSP products (Section 4.3) -/
+
+/-- Section 4.3: matrix realization of the GQSP matrix element
+`⟨0| V_k D(e^{-ihz}) ⋯ D(e^{-ihz}) V_0 |0⟩` by `⟨v, e^{-i(zX+Y)} u⟩`, uniformly on
+compact subsets of the closed lower half-plane. -/
+def ProductRealization : Prop :=
+  ∀ (V0 : M2) (Vs : List M2), V0 ∈ Matrix.unitaryGroup (Fin 2) ℂ →
+    (∀ V ∈ Vs, V ∈ Matrix.unitaryGroup (Fin 2) ℂ) →
+    ∀ (h : ℝ), 0 < h → ∀ (Z : Set ℂ), IsCompact Z → (∀ z ∈ Z, z.im ≤ 0) →
+    ∀ ε > 0, ∃ (d : ℕ) (X Y : Op d) (u v : Hd d),
+      X.IsPositive ∧ IsSelfAdjoint Y ∧ ‖u‖ = 1 ∧ ‖v‖ = 1 ∧
+      ∀ z ∈ Z, ‖⟪v, NormedSpace.exp (-(Complex.I • (z • X + Y))) u⟫_ℂ -
+        gqspMat V0 Vs (Complex.exp (-Complex.I * h * z)) 0 0‖ < ε
+
+/-- Section 4.2 (GQSP) reduces `PolynomialRealization` to `ProductRealization`. -/
+theorem polynomialRealization_of_productRealization (hprod : ProductRealization) :
+    PolynomialRealization := by
+  intro P hP h hh Z hZ hZim ε hε
+  obtain ⟨V0, Vs, hV0, hVs, happrox⟩ :=
+    gqsp_of_schur hP (ε := min (ε / 2) (1 / 2)) (by positivity)
+      (lt_of_le_of_lt (min_le_right _ _) (by norm_num))
+  obtain ⟨d, X, Y, u, v, hX, hY, hu, hv, hreal⟩ :=
+    hprod V0 Vs hV0 hVs h hh Z hZ hZim (ε / 2) (by positivity)
+  refine ⟨d, X, Y, u, v, hX, hY, hu, hv, fun z hz => ?_⟩
+  have hw : ‖Complex.exp (-Complex.I * h * z)‖ ≤ 1 := norm_exp_le_one_of_im_nonpos hh (hZim z hz)
+  have e1 := hreal z hz
+  have e2 := (happrox _ hw).trans (min_le_left _ _)
+  calc ‖⟪v, NormedSpace.exp (-(Complex.I • (z • X + Y))) u⟫_ℂ -
+        P.eval (Complex.exp (-Complex.I * h * z))‖
+      = ‖(⟪v, NormedSpace.exp (-(Complex.I • (z • X + Y))) u⟫_ℂ -
+            gqspMat V0 Vs (Complex.exp (-Complex.I * h * z)) 0 0) +
+          (gqspMat V0 Vs (Complex.exp (-Complex.I * h * z)) 0 0 -
+            P.eval (Complex.exp (-Complex.I * h * z)))‖ := by ring_nf
+    _ ≤ _ := norm_add_le _ _
+    _ < ε / 2 + ε / 2 := add_lt_add_of_lt_of_le e1 e2
+    _ = ε := by ring
+
+/-- The matrix version of Theorem 1 follows from `ProductRealization`. -/
+theorem MatrixTheorem1_of_productRealization (hprod : ProductRealization) :
+    MatrixTheorem1Statement :=
+  MatrixTheorem1_of_polynomialRealization (polynomialRealization_of_productRealization hprod)
+
+#print axioms LCHSWiener.MatrixTheorem1_of_productRealization
 
 end LCHSWiener
