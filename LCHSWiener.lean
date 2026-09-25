@@ -21,3 +21,5 @@ import LCHSWiener.OperatorLCHS
 import LCHSWiener.MatrixLCHS
 import LCHSWiener.MatrixLowerBound
 import LCHSWiener.MatrixTheorem1
+import LCHSWiener.PolyApprox
+import LCHSWiener.Realization

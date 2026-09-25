@@ -85,10 +85,14 @@ matrices of every dimension `d`, with the operator norm.
   assuming `RealizationLemma`.
 - `MatrixTheorem1.lean`: `MatrixTheorem1_of_realization :
   RealizationLemma → MatrixTheorem1Statement`.
+- `PolyApprox.lean`: Section 4.1, approximation of `Φ` on `K ∪ {-i}` by
+  `P(e^{-ihz})` with `|P| ≤ 1` on the closed unit disc.
+- `Realization.lean`: `PolynomialRealization → RealizationLemma`, where
+  `PolynomialRealization` is the part of Sections 4.2–4.3 still to be
+  formalized (GQSP decomposition and the finite Fourier clock).
 
-The upper bound is proved unconditionally. The realization lemma itself
-(Sections 4.1–4.3, following `section4_finite_dimensional.tex`) is not yet
-formalized.
+The upper bound is proved unconditionally; the lower bound currently depends on
+`PolynomialRealization`.
 
 ## Verification status
 
