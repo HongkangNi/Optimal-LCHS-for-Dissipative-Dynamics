@@ -115,6 +115,13 @@ Import specific Mathlib modules instead.
 
 ### GitHub Codespaces only
 
+Use a machine type with at least 4 cores and 16 GB of RAM.
+On the 2-core / 8 GB machine, Mathlib's compiled files do not fit in memory and
+are constantly re-read from disk, so building a single file takes minutes.
+On 4 cores / 16 GB, a full build of this project takes about 20 seconds.
+To change it, open the Codespace's menu on github.com/codespaces and choose
+"Change machine type"; the new type takes effect after the Codespace restarts.
+
 In a Codespace, `/workspaces` is a slow, persistent disk image, while `/tmp`
 is fast local disk that is wiped when the Codespace stops.
 `scripts/fast-build.sh` builds from a copy under `/tmp/lchs-fast`, with the
