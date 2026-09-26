@@ -68,8 +68,7 @@ theorem MatrixTheorem1_of_polynomialRealization (hpoly : PolynomialRealization) 
 `⟨0| V_k D(e^{-ihz}) ⋯ D(e^{-ihz}) V_0 |0⟩` by `⟨v, e^{-i(zX+Y)} u⟩`, uniformly on
 compact subsets of the closed lower half-plane. -/
 def ProductRealization : Prop :=
-  ∀ (V0 : M2) (Vs : List M2), V0 ∈ Matrix.unitaryGroup (Fin 2) ℂ →
-    (∀ V ∈ Vs, V ∈ Matrix.unitaryGroup (Fin 2) ℂ) →
+  ∀ (V0 : M2) (Vs : List M2), IsSU2 V0 → (∀ V ∈ Vs, IsSU2 V) →
     ∀ (h : ℝ), 0 < h → ∀ (Z : Set ℂ), IsCompact Z → (∀ z ∈ Z, z.im ≤ 0) →
     ∀ ε > 0, ∃ (d : ℕ) (X Y : Op d) (u v : Hd d),
       X.IsPositive ∧ IsSelfAdjoint Y ∧ ‖u‖ = 1 ∧ ‖v‖ = 1 ∧
@@ -80,11 +79,11 @@ def ProductRealization : Prop :=
 theorem polynomialRealization_of_productRealization (hprod : ProductRealization) :
     PolynomialRealization := by
   intro P hP h hh Z hZ hZim ε hε
-  obtain ⟨V0, Vs, hV0, hVs, happrox⟩ :=
+  obtain ⟨V0, Vs, _, _, hS0, hSs, happrox⟩ :=
     gqsp_of_schur hP (ε := min (ε / 2) (1 / 2)) (by positivity)
       (lt_of_le_of_lt (min_le_right _ _) (by norm_num))
   obtain ⟨d, X, Y, u, v, hX, hY, hu, hv, hreal⟩ :=
-    hprod V0 Vs hV0 hVs h hh Z hZ hZim (ε / 2) (by positivity)
+    hprod V0 Vs hS0 hSs h hh Z hZ hZim (ε / 2) (by positivity)
   refine ⟨d, X, Y, u, v, hX, hY, hu, hv, fun z hz => ?_⟩
   have hw : ‖Complex.exp (-Complex.I * h * z)‖ ≤ 1 := norm_exp_le_one_of_im_nonpos hh (hZim z hz)
   have e1 := hreal z hz

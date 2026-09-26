@@ -37,6 +37,13 @@ def gqspMat (V0 : M2) : List M2 → ℂ → M2
 /-- The basis vector `|0⟩`. -/
 def e0 : Fin 2 → ℂ := ![1, 0]
 
+/-- The `SU(2)` matrix `[[α, -β̄], [β, ᾱ]]`. -/
+def su2 (α β : ℂ) : M2 := !![α, -starRingEnd ℂ β; β, starRingEnd ℂ α]
+
+/-- `V = [[α, -β̄], [β, ᾱ]]` with `|α|² + |β|² = 1`. -/
+def IsSU2 (V : M2) : Prop :=
+  ∃ α β : ℂ, Complex.normSq α + Complex.normSq β = 1 ∧ V = su2 α β
+
 /-! ### The coefficient orthogonality -/
 
 /-- From `|P|² + |Q|² = 1` on the circle: `(p₀, q₀) ⊥ (p_N, q_N)`. -/
@@ -98,7 +105,7 @@ lemma stripRot_mem_unitary {a1 a2 : ℂ} {n : ℝ} (hn : 0 < n)
 theorem gqsp_decomposition (m : ℕ) : ∀ P Q : ℂ[X], P.natDegree ≤ m → Q.natDegree ≤ m →
     (∀ w : ℂ, ‖w‖ = 1 → Complex.normSq (P.eval w) + Complex.normSq (Q.eval w) = 1) →
     ∃ (V0 : M2) (Vs : List M2), V0 ∈ Matrix.unitaryGroup (Fin 2) ℂ ∧
-      (∀ V ∈ Vs, V ∈ Matrix.unitaryGroup (Fin 2) ℂ) ∧
+      (∀ V ∈ Vs, V ∈ Matrix.unitaryGroup (Fin 2) ℂ) ∧ IsSU2 V0 ∧ (∀ V ∈ Vs, IsSU2 V) ∧
       ∀ w : ℂ, gqspMat V0 Vs w *ᵥ e0 = ![P.eval w, Q.eval w] := by
   induction m with
   | zero =>
@@ -109,7 +116,8 @@ theorem gqsp_decomposition (m : ℕ) : ∀ P Q : ℂ[X], P.natDegree ≤ m → Q
     set q := Q.coeff 0
     have h1 := hcirc 1 (by simp)
     rw [hPC, hQC, eval_C, eval_C] at h1
-    refine ⟨!![p, -starRingEnd ℂ q; q, starRingEnd ℂ p], [], ?_, by simp, fun w => ?_⟩
+    refine ⟨!![p, -starRingEnd ℂ q; q, starRingEnd ℂ p], [], ?_, by simp, ⟨p, q, h1, rfl⟩,
+      by simp, fun w => ?_⟩
     · rw [Matrix.mem_unitaryGroup_iff]
       have h1' : starRingEnd ℂ p * p + starRingEnd ℂ q * q = 1 := by
         rw [← Complex.normSq_eq_conj_mul_self, ← Complex.normSq_eq_conj_mul_self]
@@ -197,12 +205,22 @@ theorem gqsp_decomposition (m : ℕ) : ∀ P Q : ℂ[X], P.natDegree ≤ m → Q
           simp only [Q', eval_add, eval_mul, eval_C]; ring
         rw [hPe, hQe, Complex.normSq_div, Complex.normSq_div, Complex.normSq_ofReal, ← add_div,
           hrot, sq, div_self (mul_ne_zero hn.ne' hn.ne')]
-      obtain ⟨V0, Vs, hV0, hVs, hrep⟩ := ih (divX P') Q' hdegP'' hdegQ' hcirc'
-      refine ⟨V0, stripRot a1 a2 n :: Vs, hV0, ?_, fun w => ?_⟩
+      obtain ⟨V0, Vs, hV0, hVs, hS0, hSs, hrep⟩ := ih (divX P') Q' hdegP'' hdegQ' hcirc'
+      refine ⟨V0, stripRot a1 a2 n :: Vs, hV0, ?_, hS0, ?_, fun w => ?_⟩
       · intro V hV
         rcases List.mem_cons.1 hV with h | h
         · rw [h]; exact stripRot_mem_unitary hn hn2
         · exact hVs V h
+      · intro V hV
+        rcases List.mem_cons.1 hV with h | h
+        · rw [h]
+          refine ⟨a1 / n, a2 / n, ?_, ?_⟩
+          · rw [Complex.normSq_div, Complex.normSq_div, Complex.normSq_ofReal, ← add_div, ← hn2,
+              sq, div_self (mul_ne_zero hn.ne' hn.ne')]
+          · ext i j
+            fin_cases i <;> fin_cases j <;> simp [stripRot, su2, map_div₀, Complex.conj_ofReal]
+            ring
+        · exact hSs V h
       · have hstep : gqspMat V0 (stripRot a1 a2 n :: Vs) w *ᵥ e0 =
             stripRot a1 a2 n *ᵥ (gqspD w *ᵥ (gqspMat V0 Vs w *ᵥ e0)) := by
           simp only [gqspMat, Matrix.mulVec_mulVec, Matrix.mul_assoc]
@@ -238,7 +256,7 @@ up to `ε`, the GQSP matrix element `⟨0| V_k D(w) ⋯ D(w) V_0 |0⟩`. -/
 theorem gqsp_of_schur {P : ℂ[X]} (hP : ∀ w : ℂ, ‖w‖ ≤ 1 → ‖P.eval w‖ ≤ 1) {ε : ℝ}
     (hε : 0 < ε) (hε1 : ε < 1) :
     ∃ (V0 : M2) (Vs : List M2), V0 ∈ Matrix.unitaryGroup (Fin 2) ℂ ∧
-      (∀ V ∈ Vs, V ∈ Matrix.unitaryGroup (Fin 2) ℂ) ∧
+      (∀ V ∈ Vs, V ∈ Matrix.unitaryGroup (Fin 2) ℂ) ∧ IsSU2 V0 ∧ (∀ V ∈ Vs, IsSU2 V) ∧
       ∀ w : ℂ, ‖w‖ ≤ 1 → ‖gqspMat V0 Vs w 0 0 - P.eval w‖ ≤ ε := by
   set m := P.natDegree
   set P1 : ℂ[X] := C ((1 - ε : ℝ) : ℂ) * P
@@ -279,8 +297,8 @@ theorem gqsp_of_schur {P : ℂ[X]} (hP : ∀ w : ℂ, ‖w‖ ≤ 1 → ‖P.eva
     have h3 : (1 - Complex.normSq (P1.eval w)) = ‖Q.eval w‖ ^ 2 := by exact_mod_cast h2
     rw [Complex.normSq_eq_norm_sq (Q.eval w)]
     linarith
-  obtain ⟨V0, Vs, hV0, hVs, hrep⟩ := gqsp_decomposition m P1 Q hdeg1 hQdeg hcirc
-  refine ⟨V0, Vs, hV0, hVs, fun w hw => ?_⟩
+  obtain ⟨V0, Vs, hV0, hVs, hS0, hSs, hrep⟩ := gqsp_decomposition m P1 Q hdeg1 hQdeg hcirc
+  refine ⟨V0, Vs, hV0, hVs, hS0, hSs, fun w hw => ?_⟩
   have h0 : gqspMat V0 Vs w 0 0 = P1.eval w := by
     rw [← gqspMat_mulVec_e0_zero (gqspMat V0 Vs w), hrep]
     simp

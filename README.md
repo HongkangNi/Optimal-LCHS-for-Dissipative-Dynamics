@@ -1,7 +1,11 @@
 # LCHS Wiener minimax formalization
 
-This project is a source-complete Lean 4 formalization attempt of the Wiener /
-Fourier--Stieltjes version of Section 3, Theorem 1 in the accompanying note.
+This project is a complete Lean 4 formalization of Theorem 1 of the
+accompanying note (`LCHS-sharp-bound-research-note.md`), in two versions:
+
+- the Wiener / Fourier--Stieltjes version of Section 3 (`wiener_theorem1`);
+- the matrix version, eq. (3.3), including the realization lemma of Section 4
+  (`matrix_theorem1`, see [Matrix version](#matrix-version)).
 
 ## Target
 
@@ -65,9 +69,15 @@ removed.
 #print axioms LCHSWiener.WienerTheorem1
 ```
 
+and `ClockRealization.lean` ends with
+
+```lean
+#print axioms LCHSWiener.matrix_theorem1
+```
+
 so a local build gives an immediate dependency audit.
 
-## Matrix version (in progress)
+## Matrix version
 
 `LCHSWiener/MatrixTarget.lean` states the matrix-model version of Theorem 1
 (eq. (3.3) of the note) as `MatrixTheorem1Statement`, and the realization
@@ -92,11 +102,19 @@ matrices of every dimension `d`, with the operator norm.
   polynomial with `|P| ≤ 1` on the closed unit disc is, up to any `ε > 0`, the
   matrix element `⟨0| V_k D(w) ⋯ D(w) V_0 |0⟩` with 2×2 unitaries `V_j`.
 - `Realization.lean`: `ProductRealization → PolynomialRealization →
-  RealizationLemma → MatrixTheorem1Statement`. `ProductRealization` (Section
-  4.3, the finite Fourier clock) is the part still to be formalized.
-
-The upper bound is proved unconditionally; the lower bound currently depends on
-`ProductRealization`.
+  RealizationLemma → MatrixTheorem1Statement`.
+- `OperatorGeneric.lean`: contraction semigroups and a Duhamel estimate on a
+  general complex Hilbert space; reduction of finite-dimensional operators to
+  `d × d` matrices.
+- `ClockPulses.lean`, `ClockDiscrete.lean`, `ClockRealization.lean`: Section
+  4.3, `ProductRealization`. Instead of the Fourier differentiation matrix of
+  `section4_finite_dimensional.tex`, the clock uses the central difference
+  `D = (T - T⁻¹)/(2iδ)` on `ℂ^N ⊗ ℂ²`: its consistency error is controlled by
+  the modulus of continuity, so no Fourier analysis is needed. The pulses are
+  explicit smooth paths (`Real.smoothTransition`) and every 2×2 unitary is
+  written with Euler angles.
+  `ClockRealization.lean` ends with `theorem matrix_theorem1 :
+  MatrixTheorem1Statement` and `#print axioms LCHSWiener.matrix_theorem1`.
 
 ## Verification status
 
@@ -104,6 +122,7 @@ The project compiles with Lean 4.34.0 / Mathlib v4.34.0, and
 
 ```
 'LCHSWiener.wiener_theorem1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'LCHSWiener.matrix_theorem1' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
 
 i.e. only the standard Lean axioms are used; there is no `sorry`, `admit` or
@@ -127,18 +146,33 @@ These steps work on Windows, macOS and Linux.
    `lean-toolchain` pins Lean 4.34.0 and `lake-manifest.json` pins the exact
    Mathlib revision, so do not run `lake update`.
 3. The proof is checked if the output ends with `Build completed
-   successfully` and the axiom list printed for `wiener_theorem1` (from
-   `#print axioms` at the end of `Theorem1.lean`) is exactly
-   `[propext, Classical.choice, Quot.sound]`. Any `sorryAx` or project-local
-   axiom in that list would mean the proof is incomplete.
+   successfully` and both printed axiom lists are exactly
+   `[propext, Classical.choice, Quot.sound]`:
+   - `wiener_theorem1`, from `#print axioms` at the end of `Theorem1.lean`;
+   - `matrix_theorem1`, from `#print axioms` at the end of
+     `ClockRealization.lean`.
+
+   Any `sorryAx` or project-local axiom in either list would mean that proof
+   is incomplete. If lake reuses an earlier build it prints these lists as
+   "Replayed" messages; to see them again for one file, run for example
+   `lake env lean LCHSWiener/ClockRealization.lean`.
 
 After `lake build`, opening the files in VS Code also shows the per-file
 checks.
 
-The theorem statement to review is `WienerTheorem1Statement` in
-`LCHSWiener/Target.lean`, together with the definitions it uses in
-`LCHSWiener/Core.lean` and `LCHSWiener/MeasureFourier.lean`.
-`Theorem1.lean` proves `WienerTheorem1 : WienerTheorem1Statement`.
+The theorem statements to review are:
+
+- Wiener version: `WienerTheorem1Statement` in `LCHSWiener/Target.lean`.
+  `Theorem1.lean` proves `WienerTheorem1 : WienerTheorem1Statement`.
+- Matrix version: `MatrixTheorem1Statement` in `LCHSWiener/MatrixTarget.lean`,
+  with the definitions just above it (`Op d`, `lchsIntegral`, `matrixError`,
+  `matrixMinimax`). `ClockRealization.lean` proves
+  `matrix_theorem1 : MatrixTheorem1Statement`.
+
+Both statements also use definitions from `LCHSWiener/Core.lean` (`pR`, `qR`,
+`sharpValue`) and `LCHSWiener/MeasureFourier.lean` (finite complex measures).
+Only these statement files need to be read. Every other file is proof, and
+Lean checks it.
 
 Do not `import Mathlib` in any file. The top-level `Mathlib.olean` is missing
 from the v4.34.0 cache, so that import would force a very long local build.

@@ -25,3 +25,7 @@ import LCHSWiener.PolyApprox
 import LCHSWiener.Realization
 import LCHSWiener.FejerRiesz
 import LCHSWiener.GQSP
+import LCHSWiener.OperatorGeneric
+import LCHSWiener.ClockPulses
+import LCHSWiener.ClockDiscrete
+import LCHSWiener.ClockRealization

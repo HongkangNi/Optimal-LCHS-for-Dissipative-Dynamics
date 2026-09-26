@@ -31,6 +31,11 @@ instance instModuleOp (d : ℕ) : Module ℂ (Op d) := inferInstance
 instance instNormedSpaceOp (d : ℕ) : NormedSpace ℂ (Op d) := inferInstance
 instance instNormedAlgebraOp (d : ℕ) : NormedAlgebra ℂ (Op d) := inferInstance
 instance instCompleteSpaceOp (d : ℕ) : CompleteSpace (Op d) := inferInstance
+instance instAlgebraOp (d : ℕ) : Algebra ℂ (Op d) := inferInstance
+instance instRingOp (d : ℕ) : Ring (Op d) := inferInstance
+instance instContinuousSMulOp (d : ℕ) : ContinuousSMul ℂ (Op d) := inferInstance
+instance instContinuousMulOp (d : ℕ) : ContinuousMul (Op d) := inferInstance
+instance instTopAddGroupOp (d : ℕ) : IsTopologicalAddGroup (Op d) := inferInstance
 
 /-- `e^{-i(zX+Y)}`. -/
 def lchsEvol {d : ℕ} (X Y : Op d) (z : ℂ) : Op d :=
