@@ -1,0 +1,34 @@
+# Lake dependencies, compiled files, and build snapshots.
+.lake/
+*.olean
+*.ilean
+
+# Local editor settings and operating-system files.
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Editor backups and temporary files.
+*~
+*.swp
+*.swo
+*.tmp
+
+# Writing files; the root README is public documentation.
+*.tex
+*.bib
+*.pdf
+*.md
+!/README.md
+
+# LaTeX auxiliary files.
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.synctex(busy)
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
