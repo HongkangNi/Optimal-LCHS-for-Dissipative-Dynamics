@@ -7,35 +7,35 @@ in every finite matrix dimension. Both statements are given below.
 
 ## Common definitions
 
-Let $\mathcal M(\mathbb R)$ be the finite complex Borel measures on
-$\mathbb R$. For $\mu\in\mathcal M(\mathbb R)$, write
-$\|\mu\|_{\mathrm{TV}}=|\mu|(\mathbb R)$ for its total-variation norm.
-For $R>0$ and $\lambda\ge0$, the admissible measures are
+Let $`\mathcal{M}(\mathbb{R})`$ be the finite complex Borel measures on
+$`\mathbb{R}`$. For $`\mu\in\mathcal{M}(\mathbb{R})`$, write
+$`\lVert\mu\rVert_{\mathrm{TV}}=|\mu|(\mathbb{R})`$ for its total-variation norm.
+For $`R>0`$ and $`\lambda\ge0`$, the admissible measures are
 
-$$
-\mathcal A_{R,\lambda}
-=\left\lbrace\mu\in\mathcal M(\mathbb R):
-|\mu|\bigl(\mathbb R\setminus[-R,R]\bigr)=0,
-\quad \|\mu\|_{\mathrm{TV}}\le\lambda\right\rbrace.
-$$
+```math
+\mathcal{A}_{R,\lambda}
+=\left\lbrace\mu\in\mathcal{M}(\mathbb{R}):
+|\mu|\bigl(\mathbb{R}\setminus[-R,R]\bigr)=0,
+\quad \lVert\mu\rVert_{\mathrm{TV}}\le\lambda\right\rbrace.
+```
 
 These measures may have complex weights; they need not be positive or have
 total mass one. Define
 
-$$
+```math
 p_R=\frac{2}{\pi}\arctan R,\qquad q_R=1-p_R,
-$$
+```
 
-so that $0<p_R,q_R<1$, and define the common sharp value
+so that $`0<p_R,q_R<1`$, and define the common sharp value
 
-$$
+```math
 S_R(\lambda)=
 \begin{cases}
 1-\lambda, & 0\le\lambda\le p_R,\\[4pt]
 q_R\left(\dfrac{p_R}{\lambda}\right)^{p_R/q_R},
 & \lambda>p_R.
 \end{cases}
-$$
+```
 
 In Lean these constants and the piecewise expression are
 `pR R`, `qR R`, and `sharpValue (pR R) (qR R) lam`, respectively.
@@ -44,34 +44,34 @@ In Lean these constants and the piecewise expression are
 
 Use the Fourier--Stieltjes convention
 
-$$
-\widehat\mu(x)=\int_{\mathbb R}e^{-ikx}\,d\mu(k),
-\qquad x\in\mathbb R.
-$$
+```math
+\widehat{\mu}(x)=\int_{\mathbb{R}}e^{-ikx}\,d\mu(k),
+\qquad x\in\mathbb{R}.
+```
 
 Define the optimal residual representation cost by
 
-$$
-\mathcal W_R(\lambda)
+```math
+\mathcal{W}_R(\lambda)
 =\inf\left\lbrace
-\|\nu\|_{\mathrm{TV}}:
+\lVert\nu\rVert_{\mathrm{TV}}:
 \begin{array}{l}
-\mu\in\mathcal A_{R,\lambda},\quad \nu\in\mathcal M(\mathbb R),\\
-\widehat\nu(x)=e^{-x}-\widehat\mu(x)
+\mu\in\mathcal{A}_{R,\lambda},\quad \nu\in\mathcal{M}(\mathbb{R}),\\[0pt]
+\widehat{\nu}(x)=e^{-x}-\widehat{\mu}(x)
 \quad\text{for every }x\ge0
 \end{array}
 \right\rbrace.
-$$
+```
 
-The measure $\nu$ represents the residual on the nonnegative real axis.
-It may be supported anywhere on $\mathbb R$. The quantity being minimized
+The measure $`\nu`$ represents the residual on the nonnegative real axis.
+It may be supported anywhere on $`\mathbb{R}`$. The quantity being minimized
 is its total-variation norm.
 
-**Theorem.** For every $R>0$ and $\lambda\ge0$,
+**Theorem.** For every $`R>0`$ and $`\lambda\ge0`$,
 
-$$
-\boxed{\mathcal W_R(\lambda)=S_R(\lambda).}
-$$
+```math
+\boxed{\mathcal{W}_R(\lambda)=S_R(\lambda).}
+```
 
 The definitions `fsTransform`, `RepresentsResidual`, `wienerCosts`, and
 `wienerMinimax` are in
@@ -90,43 +90,43 @@ The packaged statement `WienerTheorem1Statement` is defined in
 
 ## Theorem 2: Matrix minimax value
 
-For each positive integer $d$, let $X,Y$ be complex $d\times d$ matrices,
-and write $*$ for conjugate transpose. The condition $X\succeq0$ means
-that $X=X^*$ and
-$v^*Xv\ge0$ for every $v\in\mathbb C^d$; require also $Y=Y^*$.
+For each positive integer $`d`$, let $`X,Y`$ be complex $`d\times d`$ matrices,
+and write $`*`$ for conjugate transpose. The condition $`X\succeq0`$ means
+that $`X=X^*`$ and
+$`v^*Xv\ge0`$ for every $`v\in\mathbb{C}^d`$; require also $`Y=Y^*`$.
 All matrix norms below are operator norms induced by the Euclidean norm
-on $\mathbb C^d$.
+on $`\mathbb{C}^d`$.
 
-For $\mu\in\mathcal M(\mathbb R)$, define its LCHS approximation and
+For $`\mu\in\mathcal{M}(\mathbb{R})`$, define its LCHS approximation and
 worst-case error by
 
-$$
-L_\mu(X,Y)=\int_{\mathbb R}e^{-i(kX+Y)}\,d\mu(k)
-$$
+```math
+L_\mu(X,Y)=\int_{\mathbb{R}}e^{-i(kX+Y)}\,d\mu(k)
+```
 
 and
 
-$$
-\mathcal E(\mu)
-=\sup_{\substack{d\ge1,\ X,Y\in\mathbb C^{d\times d}\\
+```math
+\mathcal{E}(\mu)
+=\sup_{\substack{d\ge1,\ X,Y\in\mathbb{C}^{d\times d}\\[0pt]
                   X\succeq0,\ Y=Y^*}}
-\left\|e^{-(X+iY)}-L_\mu(X,Y)\right\|_{\mathrm{op}}.
-$$
+\left\lVert e^{-(X+iY)}-L_\mu(X,Y)\right\rVert_{\mathrm{op}}.
+```
 
 The integral is a finite-dimensional operator-valued integral against the
-complex measure $\mu$. The supremum ranges over all finite dimensions and
-all such matrices, using a single measure $\mu$ throughout. Define
+complex measure $`\mu`$. The supremum ranges over all finite dimensions and
+all such matrices, using a single measure $`\mu`$ throughout. Define
 
-$$
-\mathcal M_R(\lambda)
-=\inf_{\mu\in\mathcal A_{R,\lambda}}\mathcal E(\mu).
-$$
+```math
+\mathcal{M}_R(\lambda)
+=\inf_{\mu\in\mathcal{A}_{R,\lambda}}\mathcal{E}(\mu).
+```
 
-**Theorem.** For every $R>0$ and $\lambda\ge0$,
+**Theorem.** For every $`R>0`$ and $`\lambda\ge0`$,
 
-$$
-\boxed{\mathcal M_R(\lambda)=S_R(\lambda).}
-$$
+```math
+\boxed{\mathcal{M}_R(\lambda)=S_R(\lambda).}
+```
 
 The definitions `Op`, `lchsIntegral`, `lchsResidual`, `matrixError`,
 `matrixCosts`, `matrixMinimax`, and the packaged statement
