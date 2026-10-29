@@ -7,15 +7,15 @@ in every finite matrix dimension. Both statements are given below.
 
 ## Common definitions
 
-Let $`\mathcal{M}(\mathbb{R})`$ be the finite complex Borel measures on
-$`\mathbb{R}`$. For $`\mu\in\mathcal{M}(\mathbb{R})`$, write
-$`\lVert\mu\rVert_{\mathrm{TV}}=|\mu|(\mathbb{R})`$ for its total-variation norm.
+Let $`ℳ(ℝ)`$ be the finite complex Borel measures on
+$`ℝ`$. For $`\mu\inℳ(ℝ)`$, write
+$`\lVert\mu\rVert_{\mathrm{TV}}=|\mu|(ℝ)`$ for its total-variation norm.
 For $`R>0`$ and $`\lambda\ge0`$, the admissible measures are
 
 ```math
-\mathcal{A}_{R,\lambda}
-=\left\lbrace\mu\in\mathcal{M}(\mathbb{R}):
-|\mu|\bigl(\mathbb{R}\setminus[-R,R]\bigr)=0,
+𝒜_{R,\lambda}
+=\left\lbrace\mu\inℳ(ℝ):
+|\mu|\bigl(ℝ\setminus[-R,R]\bigr)=0,
 \quad \lVert\mu\rVert_{\mathrm{TV}}\le\lambda\right\rbrace.
 ```
 
@@ -45,18 +45,18 @@ In Lean these constants and the piecewise expression are
 Use the Fourier--Stieltjes convention
 
 ```math
-\widehat{\mu}(x)=\int_{\mathbb{R}}e^{-ikx}\,d\mu(k),
-\qquad x\in\mathbb{R}.
+\widehat{\mu}(x)=\int_{ℝ}e^{-ikx}\,d\mu(k),
+\qquad x\inℝ.
 ```
 
 Define the optimal residual representation cost by
 
 ```math
-\mathcal{W}_R(\lambda)
+𝒲_R(\lambda)
 =\inf\left\lbrace
 \lVert\nu\rVert_{\mathrm{TV}}:
 \begin{array}{l}
-\mu\in\mathcal{A}_{R,\lambda},\quad \nu\in\mathcal{M}(\mathbb{R}),\\[0pt]
+\mu\in𝒜_{R,\lambda},\quad \nu\inℳ(ℝ),\\[0pt]
 \widehat{\nu}(x)=e^{-x}-\widehat{\mu}(x)
 \quad\text{for every }x\ge0
 \end{array}
@@ -64,13 +64,13 @@ Define the optimal residual representation cost by
 ```
 
 The measure $`\nu`$ represents the residual on the nonnegative real axis.
-It may be supported anywhere on $`\mathbb{R}`$. The quantity being minimized
+It may be supported anywhere on $`ℝ`$. The quantity being minimized
 is its total-variation norm.
 
 **Theorem.** For every $`R>0`$ and $`\lambda\ge0`$,
 
 ```math
-\boxed{\mathcal{W}_R(\lambda)=S_R(\lambda).}
+\boxed{𝒲_R(\lambda)=S_R(\lambda).}
 ```
 
 The definitions `fsTransform`, `RepresentsResidual`, `wienerCosts`, and
@@ -93,22 +93,22 @@ The packaged statement `WienerTheorem1Statement` is defined in
 For each positive integer $`d`$, let $`X,Y`$ be complex $`d\times d`$ matrices,
 and write $`*`$ for conjugate transpose. The condition $`X\succeq0`$ means
 that $`X=X^*`$ and
-$`v^*Xv\ge0`$ for every $`v\in\mathbb{C}^d`$; require also $`Y=Y^*`$.
+$`v^*Xv\ge0`$ for every $`v\inℂ^d`$; require also $`Y=Y^*`$.
 All matrix norms below are operator norms induced by the Euclidean norm
-on $`\mathbb{C}^d`$.
+on $`ℂ^d`$.
 
-For $`\mu\in\mathcal{M}(\mathbb{R})`$, define its LCHS approximation and
+For $`\mu\inℳ(ℝ)`$, define its LCHS approximation and
 worst-case error by
 
 ```math
-L_\mu(X,Y)=\int_{\mathbb{R}}e^{-i(kX+Y)}\,d\mu(k)
+L_\mu(X,Y)=\int_{ℝ}e^{-i(kX+Y)}\,d\mu(k)
 ```
 
 and
 
 ```math
-\mathcal{E}(\mu)
-=\sup_{\substack{d\ge1,\ X,Y\in\mathbb{C}^{d\times d}\\[0pt]
+ℰ(\mu)
+=\sup_{\substack{d\ge1,\ X,Y\inℂ^{d\times d}\\[0pt]
                   X\succeq0,\ Y=Y^*}}
 \left\lVert e^{-(X+iY)}-L_\mu(X,Y)\right\rVert_{\mathrm{op}}.
 ```
@@ -118,14 +118,14 @@ complex measure $`\mu`$. The supremum ranges over all finite dimensions and
 all such matrices, using a single measure $`\mu`$ throughout. Define
 
 ```math
-\mathcal{M}_R(\lambda)
-=\inf_{\mu\in\mathcal{A}_{R,\lambda}}\mathcal{E}(\mu).
+ℳ_R(\lambda)
+=\inf_{\mu\in𝒜_{R,\lambda}}ℰ(\mu).
 ```
 
 **Theorem.** For every $`R>0`$ and $`\lambda\ge0`$,
 
 ```math
-\boxed{\mathcal{M}_R(\lambda)=S_R(\lambda).}
+\boxed{ℳ_R(\lambda)=S_R(\lambda).}
 ```
 
 The definitions `Op`, `lchsIntegral`, `lchsResidual`, `matrixError`,
