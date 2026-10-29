@@ -14,9 +14,9 @@ For $R>0$ and $\lambda\ge0$, the admissible measures are
 
 $$
 \mathcal A_{R,\lambda}
-=\left\{\mu\in\mathcal M(\mathbb R):
+=\big\{\mu\in\mathcal M(\mathbb R):
 |\mu|\bigl(\mathbb R\setminus[-R,R]\bigr)=0,
-\quad \|\mu\|_{\mathrm{TV}}\le\lambda\right\}.
+\quad \|\mu\|_{\mathrm{TV}}\le\lambda\big\}.
 $$
 
 These measures may have complex weights; they need not be positive or have
@@ -53,14 +53,14 @@ Define the optimal residual representation cost by
 
 $$
 \mathcal W_R(\lambda)
-=\inf\left\{
+=\inf\bigg\{
 \|\nu\|_{\mathrm{TV}}:
 \begin{array}{l}
 \mu\in\mathcal A_{R,\lambda},\quad \nu\in\mathcal M(\mathbb R),\\
 \widehat\nu(x)=e^{-x}-\widehat\mu(x)
 \quad\text{for every }x\ge0
 \end{array}
-\right\}.
+\bigg\}.
 $$
 
 The measure $\nu$ represents the residual on the nonnegative real axis.
